@@ -1,0 +1,36 @@
+audience:
+  - Marketing operators, founders, creators, consultants, and content/SEO teams.
+  - People who want to understand what AI changes in practical work, not just read hype.
+  - Readers should leave with a clearer decision, a sharper question, or a useful mental model.
+
+point_of_view:
+  - AI is most valuable when it improves judgment, positioning, research, briefs, and decisions before content is created.
+  - More content is not automatically better. The real advantage is better thinking, better timing, and clearer proof.
+  - The best marketers will not outsource taste or responsibility to AI; they will use AI to expose weak assumptions.
+  - When everybody can generate content, trust, specificity, distribution, and original perspective become more valuable.
+  - Marketing teams should treat AI outputs as drafts, pressure tests, and decision support, not as final truth.
+
+editorial_rules:
+  - Use the sources as inputs, not as scripts.
+  - Do not imitate the language, framing, or structure of the original articles.
+  - Start from one specific issue and build a clear personal argument.
+  - Separate what is known from what is inferred.
+  - If a claim sounds hyped or unsupported, say so calmly.
+  - Explain why the topic matters for the person reading it.
+  - End with a practical implication, question, or decision rule.
+
+tone:
+  - Personal, direct, sharp, practical, and thoughtful.
+  - Strong point of view without sounding like a guru.
+  - Confident but not arrogant.
+  - Concrete rather than motivational.
+  - Written in English for LinkedIn.
+
+banned_patterns:
+  - AI is changing everything.
+  - game changer
+  - in today's fast-paced world
+  - unlock the power
+  - revolutionize your marketing
+  - generic recap of article titles
+  - empty predictions without operational consequences

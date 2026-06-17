@@ -1,0 +1,31 @@
+log_level: INFO
+
+paths:
+  sources_file: sources.yaml
+  voice_file: voice.yaml
+  output_dir: output
+  db_path: data/digest.sqlite3
+
+fetch:
+  window_hours: 48
+  max_articles: 5
+  max_newsletter_articles: 20
+  request_timeout: 20
+  max_links_per_source: 20
+  include_undated: false
+  min_article_chars: 400
+  user_agent: "ai-marketing-digest/0.1 (+https://example.com/bot)"
+
+llm:
+  provider: auto
+  openai_model: gpt-4o-mini
+  anthropic_model: claude-3-5-haiku-latest
+  temperature: 0.6
+  use_ranking: false
+  max_post_chars: 2600
+
+delivery:
+  email:
+    enabled: false
+  telegram:
+    enabled: false

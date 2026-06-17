@@ -1,0 +1,35 @@
+sources:
+  - name: Neil Patel
+    blog_url: https://neilpatel.com/blog/
+    feed_url:
+    enabled: true
+
+  - name: Search Engine Journal
+    blog_url: https://www.searchenginejournal.com/category/digital-marketing/
+    feed_url:
+    enabled: true
+
+  - name: American Marketing Association
+    blog_url: https://www.ama.org/marketing-news/
+    feed_url:
+    enabled: true
+
+  - name: Content Marketing Institute
+    blog_url: https://contentmarketinginstitute.com/articles/
+    feed_url:
+    enabled: true
+
+  - name: MarketingProfs
+    blog_url: https://www.marketingprofs.com/resources/
+    feed_url:
+    enabled: true
+
+  - name: Marketing AI Institute
+    blog_url: https://www.marketingaiinstitute.com/blog
+    feed_url:
+    enabled: true
+
+  - name: HubSpot Marketing Blog
+    blog_url: https://blog.hubspot.com/marketing
+    feed_url:
+    enabled: true
