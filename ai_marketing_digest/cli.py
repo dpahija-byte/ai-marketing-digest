@@ -8,10 +8,11 @@ from pathlib import Path
 
 from .config import load_config, load_sources
 from .dedup import DedupStore
-from .deliver import deliver_output, write_newsletter
+from .deliver import deliver_output, write_public_article
 from .fetch import Fetcher
 from .generate import LLMClient, TemplateClient, create_llm_client
-from .models import AppConfig, Article, DraftPost
+from .image import create_article_image
+from .models import AppConfig, Article
 from .relevance import score_articles
 from .site import build_site
 
@@ -51,7 +52,7 @@ def main(argv: list[str] | None = None) -> int:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="ai-marketing-digest")
     subparsers = parser.add_subparsers(dest="command")
-    run_parser = subparsers.add_parser("run", help="Fetch articles and generate LinkedIn draft posts")
+    run_parser = subparsers.add_parser("run", help="Fetch research and generate the daily public article")
     run_parser.add_argument("--config", default="config.yaml", help="Path to config.yaml")
     run_parser.add_argument("--sources", help="Path to sources.yaml")
     run_parser.add_argument("--window-hours", type=int, help="Override fetch window")
@@ -91,42 +92,40 @@ def run(
         duplicate_count = len(fetched) - len(new_articles)
         logging.info("Fetched=%d, new=%d, already_processed=%d", len(fetched), len(new_articles), duplicate_count)
 
-        scored = score_articles(new_articles)
-        newsletter_items = scored[: config.max_newsletter_articles]
-        draft_candidates = [item.article for item in scored[: config.max_articles]]
+        research_articles = new_articles or fetched
+        scored = score_articles(research_articles)
+        editorial_articles = [item.article for item in scored[: config.max_newsletter_articles]]
 
         llm = None
-        draft_articles = draft_candidates
-        if draft_candidates:
+        if editorial_articles:
             llm = _create_llm_or_template(config, dry_run=dry_run)
-            if config.use_llm_ranking:
-                draft_articles = llm.rank_articles(draft_candidates, config.max_articles)
 
-        draft_posts: list[DraftPost] = []
-        if draft_articles:
-            if llm is None:
-                llm = _create_llm_or_template(config, dry_run=dry_run)
-            for article in draft_articles[: config.max_articles]:
-                try:
-                    context = _post_context(article, draft_articles)
-                    content = llm.generate_digest_post(context)
-                    draft_posts.append(DraftPost(article=article, content=content))
-                except Exception:
-                    logging.exception("LinkedIn post generation failed for %s", article.url)
+        if llm is None:
+            llm = _create_llm_or_template(config, dry_run=dry_run)
 
-        output_path = write_newsletter(
-            newsletter_items,
-            draft_posts,
+        try:
+            public_article = llm.generate_public_article(editorial_articles, len(sources))
+        except Exception:
+            logging.exception("Public article generation failed; using local template")
+            public_article = TemplateClient(config).generate_public_article(editorial_articles, len(sources))
+
+        run_date = datetime.now(timezone.utc).date()
+        image_path = create_article_image(public_article, config, run_date)
+        if image_path:
+            public_article = replace(public_article, image_path=image_path)
+
+        output_path = write_public_article(
+            public_article,
             config,
-            run_date=datetime.now(timezone.utc).date(),
+            run_date=run_date,
             stats={
                 "sources": len(sources),
                 "fetched": len(fetched),
-                "new": len(new_articles),
+                "new": len(research_articles),
             },
         )
 
-        for item in newsletter_items:
+        for item in scored[: config.max_newsletter_articles]:
             store.record(item.article, "newslettered", item.reason, str(output_path))
 
     logging.info("Digest written to %s", output_path)
@@ -162,17 +161,6 @@ def _replace_window_hours(config: AppConfig, value: int) -> AppConfig:
 
 def _replace_max_articles(config: AppConfig, value: int) -> AppConfig:
     return replace(config, max_articles=value)
-
-
-def _post_context(anchor: Article, articles: list[Article], limit: int = 6) -> list[Article]:
-    context = [anchor]
-    for article in articles:
-        if article.url == anchor.url:
-            continue
-        context.append(article)
-        if len(context) >= limit:
-            break
-    return context
 
 
 def _create_llm_or_template(config: AppConfig, dry_run: bool) -> LLMClient:

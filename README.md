@@ -1,6 +1,6 @@
 # ai-marketing-digest
 
-Applicazione Python 3.11 che raccoglie ogni giorno contenuti recenti da blog su AI e marketing, li prepara in una newsletter editoriale e genera una bozza LinkedIn unica in inglese, personale e specifica.
+Applicazione Python 3.11 che raccoglie ogni giorno contenuti recenti da molte fonti AI + marketing e genera un articolo editoriale originale in inglese, con immagine AI e sito statico pubblico.
 
 ## Cosa fa
 
@@ -9,8 +9,8 @@ Applicazione Python 3.11 che raccoglie ogni giorno contenuti recenti da blog su 
 3. Rispetta `robots.txt` prima di scaricare pagine, feed e articoli.
 4. Tiene solo articoli pubblicati nella finestra configurata, di default 48 ore.
 5. Deduplica gli URL già processati in SQLite.
-6. Non scarta gli articoli automaticamente: aggiunge solo punteggi e segnali AI/marketing per aiutarti a decidere.
-7. Genera fino a 5 bozze LinkedIn in inglese: non riassunti, ma tesi personali e utili ispirate dagli articoli principali.
+6. Usa gli articoli come materiale di ricerca, non come link roundup pubblico.
+7. Genera un articolo quotidiano originale: tesi personale, analisi, claim discipline e takeaway pratico.
 8. Può inviare il risultato via email o Telegram.
 9. Può generare un sito statico pubblico in `site/`, pubblicabile su GitHub Pages.
 10. Usa `voice.yaml` per mantenere una prospettiva editoriale personale e non copiare il framing dei siti fonte.
@@ -66,7 +66,7 @@ python -m ai_marketing_digest run --include-seen
 
 `config.yaml` controlla finestra temporale, numero massimo di articoli, modello LLM, ranking opzionale e delivery.
 
-`voice.yaml` controlla la voce editoriale: audience, punto di vista, regole, tono e frasi da evitare. Modificalo quando vuoi che i post seguano meglio il tuo pensiero.
+`voice.yaml` controlla la voce editoriale: audience, punto di vista, regole, tono e frasi da evitare. Modificalo quando vuoi che gli articoli seguano meglio il tuo pensiero.
 
 Variabili ambiente utili:
 
@@ -75,9 +75,10 @@ Variabili ambiente utili:
 - `OPENAI_MODEL` e `ANTHROPIC_MODEL`
 - `USE_LLM_RANKING=true` per ordinare i candidati con il modello
 - `WINDOW_HOURS=48`
-- `MAX_ARTICLES=5` per generare fino a 5 post LinkedIn al giorno
-- `MAX_NEWSLETTER_ARTICLES=20`
+- `MAX_NEWSLETTER_ARTICLES=40` per decidere quanti articoli recenti usare come corpus editoriale
 - `VOICE_FILE=voice.yaml`
+- `IMAGE_ENABLED=true`
+- `IMAGE_MODEL=gpt-image-1`
 - `EMAIL_ENABLED=true`
 - `TELEGRAM_ENABLED=true`
 
@@ -131,9 +132,9 @@ site/feed.xml
 
 Ogni file contiene:
 
-- newsletter degli articoli trovati
-- punteggi e segnali AI/marketing solo come supporto editoriale
-- fino a 5 bozze LinkedIn in inglese, ciascuna basata su una posizione specifica emersa dagli articoli principali
+- articolo originale quotidiano
+- immagine hero generata da AI se `OPENAI_API_KEY` e `IMAGE_ENABLED=true` sono disponibili
+- breve nota di research basis senza trasformare il sito in una lista di link alle fonti
 
 ## Delivery opzionale
 

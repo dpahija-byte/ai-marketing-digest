@@ -37,6 +37,10 @@ class AppConfig:
     llm_temperature: float
     use_llm_ranking: bool
     max_post_chars: int
+    image_enabled: bool
+    image_model: str
+    image_size: str
+    image_quality: str
     email_enabled: bool
     telegram_enabled: bool
     editorial_voice: str
@@ -58,3 +62,14 @@ class Article:
 class DraftPost:
     article: Article
     content: str
+
+
+@dataclass(frozen=True)
+class PublicArticle:
+    title: str
+    subtitle: str
+    body_markdown: str
+    image_prompt: str
+    source_count: int
+    article_count: int
+    image_path: Path | None = None

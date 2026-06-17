@@ -6,7 +6,7 @@ import os
 from abc import ABC, abstractmethod
 from typing import Any
 
-from .models import AppConfig, Article
+from .models import AppConfig, Article, PublicArticle
 
 LOGGER = logging.getLogger(__name__)
 
@@ -18,6 +18,10 @@ class LLMClient(ABC):
 
     @abstractmethod
     def generate_digest_post(self, articles: list[Article]) -> str:
+        raise NotImplementedError
+
+    @abstractmethod
+    def generate_public_article(self, articles: list[Article], source_count: int) -> PublicArticle:
         raise NotImplementedError
 
     def rank_articles(self, articles: list[Article], limit: int) -> list[Article]:
@@ -61,6 +65,22 @@ class OpenAIClient(LLMClient):
             raise RuntimeError("OpenAI returned an empty digest generation")
         return content.strip()
 
+    def generate_public_article(self, articles: list[Article], source_count: int) -> PublicArticle:
+        response = self.client.chat.completions.create(
+            model=self.config.openai_model,
+            temperature=self.config.llm_temperature,
+            max_tokens=2600,
+            response_format={"type": "json_object"},
+            messages=[
+                {"role": "system", "content": _public_article_system_prompt(self.config)},
+                {"role": "user", "content": _public_article_prompt(articles, source_count)},
+            ],
+        )
+        content = response.choices[0].message.content
+        if not content:
+            raise RuntimeError("OpenAI returned an empty public article")
+        return _public_article_from_json(content, articles, source_count)
+
     def rank_articles(self, articles: list[Article], limit: int) -> list[Article]:
         response = self.client.chat.completions.create(
             model=self.config.openai_model,
@@ -100,6 +120,16 @@ class AnthropicClient(LLMClient):
             messages=[{"role": "user", "content": _digest_prompt(articles)}],
         )
         return _anthropic_text(response).strip()
+
+    def generate_public_article(self, articles: list[Article], source_count: int) -> PublicArticle:
+        response = self.client.messages.create(
+            model=self.config.anthropic_model,
+            max_tokens=2600,
+            temperature=self.config.llm_temperature,
+            system=_public_article_system_prompt(self.config),
+            messages=[{"role": "user", "content": _public_article_prompt(articles, source_count)}],
+        )
+        return _public_article_from_json(_anthropic_text(response), articles, source_count)
 
     def rank_articles(self, articles: list[Article], limit: int) -> list[Article]:
         response = self.client.messages.create(
@@ -171,6 +201,51 @@ class TemplateClient(LLMClient):
             "#AIMarketing #MarketingStrategy #MarTech #ContentMarketing"
         )
         return body[: self.config.max_post_chars]
+
+    def generate_public_article(self, articles: list[Article], source_count: int) -> PublicArticle:
+        title = "The Real AI Marketing Advantage Is Not More Content"
+        subtitle = "A daily editorial take on why the next edge belongs to teams that use AI to pressure-test judgment before they publish."
+        source_line = ", ".join(sorted({article.source for article in articles[:8]}))
+        body = (
+            "Most AI marketing discussions still start in the wrong place: output.\n\n"
+            "More posts. More ads. More landing page variants. More emails. More everything.\n\n"
+            "But if everyone can produce more, volume stops being an advantage very quickly. "
+            "The real advantage moves upstream: into judgment.\n\n"
+            "The useful question is not whether a marketer can generate content faster. "
+            "The useful question is whether the team can make better decisions before content exists.\n\n"
+            "That is where today's research signals point. Search behavior is being reshaped by AI answers. "
+            "Commerce flows are becoming more agentic. Brand reputation is increasingly interpreted by systems "
+            "that summarize, rank, and compress what the market already believes. None of that is solved by asking "
+            "for ten more post ideas.\n\n"
+            "What feels solid: AI is becoming part of the marketing operating layer. It is touching briefs, feeds, "
+            "search visibility, customer journeys, and the way brands are interpreted before a human ever lands on a website.\n\n"
+            "What I would treat carefully: the idea that automation automatically creates better marketing. "
+            "It usually creates more marketing first. Better only happens when the team uses AI to expose weak assumptions.\n\n"
+            "A practical test for any marketing team:\n\n"
+            "Before asking AI to write the asset, ask it to challenge the decision behind the asset.\n\n"
+            "- What assumption are we making about the buyer?\n"
+            "- What claim sounds generic?\n"
+            "- What proof is missing?\n"
+            "- What would a skeptical customer reject?\n"
+            "- Which channel would punish this idea fastest?\n\n"
+            "That is not glamorous. But it is where the leverage is.\n\n"
+            "AI should not become the machine that helps us publish weak thinking faster. "
+            "It should become the pressure system that makes weak thinking harder to ship.\n\n"
+            f"Research basis: {len(articles)} recent items reviewed across {source_count} sources, including {source_line}."
+        )
+        image_prompt = (
+            "Editorial hero image for an AI marketing strategy article. A modern strategy desk with layered research notes, "
+            "abstract signal maps, search/commercial flows, and a calm human decision-maker. Sophisticated, realistic, "
+            "not futuristic cliche, no text, no logos, no robot."
+        )
+        return PublicArticle(
+            title=title,
+            subtitle=subtitle,
+            body_markdown=body,
+            image_prompt=image_prompt,
+            source_count=source_count,
+            article_count=len(articles),
+        )
 
 
 def create_llm_client(config: AppConfig, dry_run: bool = False) -> LLMClient:
@@ -282,6 +357,86 @@ def _digest_prompt(articles: list[Article]) -> str:
         "the original sites' framing. Do not invent facts beyond the excerpts. Credit the main sources briefly "
         "near the end.\n\n"
         + json.dumps(rows, ensure_ascii=False)
+    )
+
+
+def _public_article_system_prompt(config: AppConfig) -> str:
+    return (
+        "You are writing the daily public article for an independent AI marketing publication. "
+        "Your job is not to summarize or promote the sources. Your job is to study them, extract the strongest "
+        "signals, separate supported claims from hype, and write one original article that follows the author's "
+        "point of view.\n\n"
+        "Output must be valid JSON with exactly these keys:\n"
+        '- "title": strong article title, not clickbait.\n'
+        '- "subtitle": one-sentence promise for the reader.\n'
+        '- "body_markdown": the full article in Markdown.\n'
+        '- "image_prompt": prompt for an AI-generated editorial hero image.\n\n'
+        "Article requirements:\n"
+        "- English only.\n"
+        "- 900-1400 words if there is enough material.\n"
+        "- One clear thesis, not a roundup.\n"
+        "- Personal, analytical, useful, and specific.\n"
+        "- Do not imitate the wording or structure of source sites.\n"
+        "- Do not send readers away with a list of external links.\n"
+        "- Do not mention every source. Use them as research inputs.\n"
+        "- Make your reasoning visible: what seems solid, what is inferred, what may be overhyped.\n"
+        "- Give the reader a practical decision rule, framework, or operational takeaway.\n"
+        "- Avoid generic LinkedIn language and motivational fluff.\n"
+        "- Do not invent facts beyond the source excerpts.\n"
+        "- Do not include raw URLs in the public article body.\n"
+        "- The hero image prompt must request no text, no logos, no UI screenshots, no robots, and no brand names.\n"
+        f"{_voice_block(config)}"
+    )
+
+
+def _public_article_prompt(articles: list[Article], source_count: int) -> str:
+    rows: list[dict[str, Any]] = []
+    for index, article in enumerate(articles[:40], start=1):
+        rows.append(
+            {
+                "id": index,
+                "source": article.source,
+                "title": article.title,
+                "author": article.author,
+                "published_at": article.published_at.isoformat() if article.published_at else None,
+                "excerpt": (article.excerpt or article.text[:900])[:1200],
+            }
+        )
+    return (
+        f"You reviewed {len(articles)} recent articles from {source_count} sources. "
+        "Use the following research material to create one original daily article. "
+        "The public article should feel like it belongs to the author's publication, not to the source sites. "
+        "Do not output source links. Do not output a listicle of sources. Create one strong angle.\n\n"
+        + json.dumps(rows, ensure_ascii=False)
+    )
+
+
+def _public_article_from_json(content: str, articles: list[Article], source_count: int) -> PublicArticle:
+    try:
+        start = content.index("{")
+        end = content.rindex("}") + 1
+        payload = json.loads(content[start:end])
+    except (ValueError, json.JSONDecodeError) as exc:
+        raise RuntimeError("Could not parse public article JSON") from exc
+
+    title = str(payload.get("title") or "AI Marketing Daily")
+    subtitle = str(payload.get("subtitle") or "A daily analysis of the most useful signals in AI and marketing.")
+    body = str(payload.get("body_markdown") or "").strip()
+    image_prompt = str(payload.get("image_prompt") or "").strip()
+    if not body:
+        raise RuntimeError("Generated public article body is empty")
+    if not image_prompt:
+        image_prompt = (
+            "Editorial hero image for a thoughtful AI marketing strategy article. Sophisticated, realistic, "
+            "abstract research desk, signal maps, no text, no logos, no robots."
+        )
+    return PublicArticle(
+        title=title,
+        subtitle=subtitle,
+        body_markdown=body,
+        image_prompt=image_prompt,
+        source_count=source_count,
+        article_count=len(articles),
     )
 
 

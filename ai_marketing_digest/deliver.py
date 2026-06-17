@@ -9,14 +9,13 @@ from pathlib import Path
 
 import requests
 
-from .models import AppConfig, DraftPost
-from .relevance import ScoredArticle
+from .models import AppConfig, PublicArticle
 
 LOGGER = logging.getLogger(__name__)
 
 
-def write_digest(
-    posts: list[DraftPost],
+def write_public_article(
+    article: PublicArticle,
     config: AppConfig,
     run_date: date | None = None,
     stats: dict[str, int] | None = None,
@@ -27,132 +26,30 @@ def write_digest(
     stats = stats or {}
 
     lines = [
-        f"# AI Marketing Digest - {run_date.isoformat()}",
+        f"# {article.title}",
         "",
-        f"Generated: {datetime.now(timezone.utc).isoformat()}",
-        f"Sources analyzed: {stats.get('sources', 0)}",
-        f"Articles found: {stats.get('fetched', 0)}",
-        f"New articles: {stats.get('new', 0)}",
-        f"Selected articles: {len(posts)}",
+        article.subtitle,
         "",
     ]
 
-    if not posts:
-        lines.extend(
-            [
-                "Nessun nuovo articolo rilevante trovato nella finestra configurata.",
-                "",
-            ]
-        )
-    for index, post in enumerate(posts, start=1):
-        article = post.article
-        lines.extend(
-            [
-                f"## {index}. {article.title}",
-                "",
-                f"- Source: {article.source}",
-                f"- URL: {article.url}",
-                f"- Author: {article.author or 'not specified'}",
-                f"- Date: {article.published_at.isoformat() if article.published_at else 'not available'}",
-                "",
-                post.content.strip(),
-                "",
-                "---",
-                "",
-            ]
-        )
+    if article.image_path:
+        image_ref = _relative_path(article.image_path, config.output_dir)
+        lines.extend([f"![{article.title}]({image_ref})", ""])
 
-    output_path.write_text("\n".join(lines), encoding="utf-8")
-    return output_path
-
-
-def write_newsletter(
-    scored_articles: list[ScoredArticle],
-    draft_posts: list[DraftPost],
-    config: AppConfig,
-    run_date: date | None = None,
-    stats: dict[str, int] | None = None,
-) -> Path:
-    run_date = run_date or datetime.now(timezone.utc).date()
-    config.output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = config.output_dir / f"{run_date.isoformat()}.md"
-    stats = stats or {}
-
-    lines = [
-        f"# AI Marketing Digest - {run_date.isoformat()}",
-        "",
-        f"Generated: {datetime.now(timezone.utc).isoformat()}",
-        f"Sources analyzed: {stats.get('sources', 0)}",
-        f"Articles found: {stats.get('fetched', 0)}",
-        f"New articles considered: {stats.get('new', 0)}",
-        f"Articles in newsletter: {len(scored_articles)}",
-        f"LinkedIn draft posts: {len(draft_posts)}",
-        "",
-        "## Source Intelligence",
-        "",
-    ]
-
-    if not scored_articles:
-        lines.extend(
-            [
-                "No new articles found in the configured time window.",
-                "",
-            ]
-        )
-    else:
-        lines.append(
-            "Editorial note: articles are not treated as scripts. They are inputs for analysis, "
-            "claim discipline, and original LinkedIn angles."
-        )
-        lines.append("")
-
-    for index, item in enumerate(scored_articles, start=1):
-        article = item.article
-        excerpt = article.excerpt or article.text[:420]
-        ai_hits = ", ".join(item.ai_hits) if item.ai_hits else "none explicit"
-        marketing_hits = ", ".join(item.marketing_hits) if item.marketing_hits else "none explicit"
-        lines.extend(
-            [
-                f"### {index}. {article.title}",
-                "",
-                f"- Source: {article.source}",
-                f"- URL: {article.url}",
-                f"- Author: {article.author or 'not specified'}",
-                f"- Date: {article.published_at.isoformat() if article.published_at else 'not available'}",
-                f"- Automatic priority: {item.score}",
-                f"- AI signals: {ai_hits}",
-                f"- Marketing signals: {marketing_hits}",
-                "",
-                excerpt.strip(),
-                "",
-            ]
-        )
-
-    lines.extend(["## LinkedIn draft posts", ""])
-    if draft_posts:
-        for index, draft in enumerate(draft_posts, start=1):
-            article = draft.article
-            lines.extend(
-                [
-                    f"### Post {index}: {article.title}",
-                    "",
-                    f"- Anchor source: {article.source}",
-                    f"- Anchor URL: {article.url}",
-                    f"- Anchor author: {article.author or 'not specified'}",
-                    "",
-                    draft.content.strip(),
-                    "",
-                    "---",
-                    "",
-                ]
-            )
-    else:
-        lines.extend(
-            [
-                "No LinkedIn drafts generated because no articles were available.",
-                "",
-            ]
-        )
+    lines.extend(
+        [
+            article.body_markdown.strip(),
+            "",
+            "---",
+            "",
+            "## Research Basis",
+            "",
+            f"- Sources scanned: {stats.get('sources', article.source_count)}",
+            f"- Recent items reviewed: {stats.get('new', article.article_count)}",
+            "- The article above is original analysis. Source material is used as research input, not republished as a link roundup.",
+            "",
+        ]
+    )
 
     output_path.write_text("\n".join(lines), encoding="utf-8")
     return output_path
@@ -217,6 +114,13 @@ def send_telegram(body: str) -> None:
 
 def _chunks(text: str, size: int) -> list[str]:
     return [text[index : index + size] for index in range(0, len(text), size)]
+
+
+def _relative_path(path: Path, base: Path) -> str:
+    try:
+        return path.relative_to(base).as_posix()
+    except ValueError:
+        return path.as_posix()
 
 
 def _single_email(value: str, env_name: str) -> str:

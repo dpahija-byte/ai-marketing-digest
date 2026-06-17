@@ -9,9 +9,9 @@ paths:
 fetch:
   window_hours: 48
   max_articles: 5
-  max_newsletter_articles: 20
-  request_timeout: 20
-  max_links_per_source: 20
+  max_newsletter_articles: 40
+  request_timeout: 12
+  max_links_per_source: 10
   include_undated: false
   min_article_chars: 400
   user_agent: "ai-marketing-digest/0.1 (+https://example.com/bot)"
@@ -23,6 +23,12 @@ llm:
   temperature: 0.6
   use_ranking: false
   max_post_chars: 2600
+
+image:
+  enabled: true
+  model: gpt-image-1
+  size: 1536x1024
+  quality: medium
 
 delivery:
   email:

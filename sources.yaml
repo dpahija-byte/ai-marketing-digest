@@ -1,35 +1,211 @@
 sources:
-  - name: Neil Patel
-    blog_url: https://neilpatel.com/blog/
-    feed_url:
-    enabled: true
-
   - name: Search Engine Journal
-    blog_url: https://www.searchenginejournal.com/category/digital-marketing/
-    feed_url:
-    enabled: true
-
-  - name: American Marketing Association
-    blog_url: https://www.ama.org/marketing-news/
-    feed_url:
-    enabled: true
-
-  - name: Content Marketing Institute
-    blog_url: https://contentmarketinginstitute.com/articles/
-    feed_url:
-    enabled: true
-
-  - name: MarketingProfs
-    blog_url: https://www.marketingprofs.com/resources/
-    feed_url:
-    enabled: true
-
+    blog_url: https://www.searchenginejournal.com/
+  - name: Search Engine Land
+    blog_url: https://searchengineland.com/
   - name: Marketing AI Institute
     blog_url: https://www.marketingaiinstitute.com/blog
-    feed_url:
-    enabled: true
-
+  - name: Content Marketing Institute
+    blog_url: https://contentmarketinginstitute.com/articles/
+  - name: MarketingProfs
+    blog_url: https://www.marketingprofs.com/resources/
+  - name: American Marketing Association
+    blog_url: https://www.ama.org/marketing-news/
+  - name: Neil Patel
+    blog_url: https://neilpatel.com/blog/
   - name: HubSpot Marketing Blog
     blog_url: https://blog.hubspot.com/marketing
-    feed_url:
-    enabled: true
+  - name: Moz Blog
+    blog_url: https://moz.com/blog
+  - name: Semrush Blog
+    blog_url: https://www.semrush.com/blog/
+  - name: Ahrefs Blog
+    blog_url: https://ahrefs.com/blog/
+  - name: Backlinko
+    blog_url: https://backlinko.com/blog
+  - name: WordStream
+    blog_url: https://www.wordstream.com/blog
+  - name: Social Media Examiner
+    blog_url: https://www.socialmediaexaminer.com/
+  - name: Sprout Social Insights
+    blog_url: https://sproutsocial.com/insights/
+  - name: Buffer Blog
+    blog_url: https://buffer.com/resources/
+  - name: Hootsuite Blog
+    blog_url: https://blog.hootsuite.com/
+  - name: Later Blog
+    blog_url: https://later.com/blog/
+  - name: Shopify Blog
+    blog_url: https://www.shopify.com/blog
+  - name: Klaviyo Blog
+    blog_url: https://www.klaviyo.com/blog
+  - name: Mailchimp Marketing Tips
+    blog_url: https://mailchimp.com/resources/
+  - name: ActiveCampaign Blog
+    blog_url: https://www.activecampaign.com/blog
+  - name: Salesforce Marketing
+    blog_url: https://www.salesforce.com/blog/category/marketing/
+  - name: Adobe Experience Cloud Blog
+    blog_url: https://business.adobe.com/blog
+  - name: Think with Google
+    blog_url: https://www.thinkwithgoogle.com/
+  - name: Google Ads Blog
+    blog_url: https://blog.google/products/ads-commerce/
+  - name: Google Search Central
+    blog_url: https://developers.google.com/search/blog
+  - name: Microsoft Advertising Blog
+    blog_url: https://about.ads.microsoft.com/en/blog
+  - name: LinkedIn Marketing Blog
+    blog_url: https://www.linkedin.com/business/marketing/blog
+  - name: Meta Business News
+    blog_url: https://www.facebook.com/business/news
+  - name: TikTok Business Blog
+    blog_url: https://www.tiktok.com/business/en/blog
+  - name: Pinterest Business
+    blog_url: https://business.pinterest.com/blog/
+  - name: Reddit for Business
+    blog_url: https://www.business.reddit.com/blog
+  - name: YouTube Official Blog
+    blog_url: https://blog.youtube/
+  - name: Marketing Dive
+    blog_url: https://www.marketingdive.com/
+  - name: Adweek
+    blog_url: https://www.adweek.com/
+  - name: Ad Age
+    blog_url: https://adage.com/
+  - name: The Drum
+    blog_url: https://www.thedrum.com/
+  - name: Campaign US
+    blog_url: https://www.campaignlive.com/us
+  - name: Digiday
+    blog_url: https://digiday.com/
+  - name: MarTech
+    blog_url: https://martech.org/
+  - name: CMSWire
+    blog_url: https://www.cmswire.com/
+  - name: Chief Marketer
+    blog_url: https://www.chiefmarketer.com/
+  - name: Marketing Brew
+    blog_url: https://www.marketingbrew.com/
+  - name: Convince and Convert
+    blog_url: https://www.convinceandconvert.com/blog/
+  - name: Copyblogger
+    blog_url: https://copyblogger.com/blog/
+  - name: Animalz
+    blog_url: https://www.animalz.co/blog/
+  - name: Foundation Marketing
+    blog_url: https://foundationinc.co/lab/
+  - name: Siege Media
+    blog_url: https://www.siegemedia.com/blog
+  - name: Orbit Media
+    blog_url: https://www.orbitmedia.com/blog/
+  - name: CXL
+    blog_url: https://cxl.com/blog/
+  - name: Reforge
+    blog_url: https://www.reforge.com/blog
+  - name: First Round Review
+    blog_url: https://review.firstround.com/
+  - name: OpenAI Blog
+    blog_url: https://openai.com/news/
+  - name: Anthropic News
+    blog_url: https://www.anthropic.com/news
+  - name: Google DeepMind Blog
+    blog_url: https://deepmind.google/discover/blog/
+  - name: Google AI Blog
+    blog_url: https://blog.google/technology/ai/
+  - name: Microsoft AI Blog
+    blog_url: https://blogs.microsoft.com/ai/
+  - name: Meta AI Blog
+    blog_url: https://ai.meta.com/blog/
+  - name: NVIDIA Blog
+    blog_url: https://blogs.nvidia.com/
+  - name: Hugging Face Blog
+    blog_url: https://huggingface.co/blog
+  - name: Towards Data Science
+    blog_url: https://towardsdatascience.com/
+  - name: MIT Sloan Management Review
+    blog_url: https://sloanreview.mit.edu/
+  - name: Harvard Business Review
+    blog_url: https://hbr.org/
+  - name: McKinsey Insights
+    blog_url: https://www.mckinsey.com/featured-insights
+  - name: BCG Insights
+    blog_url: https://www.bcg.com/publications
+  - name: Bain Insights
+    blog_url: https://www.bain.com/insights/
+  - name: Deloitte Insights
+    blog_url: https://www2.deloitte.com/us/en/insights.html
+  - name: Gartner Marketing
+    blog_url: https://www.gartner.com/en/marketing
+  - name: Forrester Blogs
+    blog_url: https://www.forrester.com/blogs/
+  - name: Pecan AI Blog
+    blog_url: https://www.pecan.ai/blog/
+  - name: Jasper Blog
+    blog_url: https://www.jasper.ai/blog
+  - name: Writer Blog
+    blog_url: https://writer.com/blog/
+  - name: Copy.ai Blog
+    blog_url: https://www.copy.ai/blog
+  - name: Anyword Blog
+    blog_url: https://www.anyword.com/blog/
+  - name: Persado Blog
+    blog_url: https://www.persado.com/articles/
+  - name: Mutiny Blog
+    blog_url: https://www.mutinyhq.com/blog
+  - name: Demandbase Blog
+    blog_url: https://www.demandbase.com/blog/
+  - name: 6sense Blog
+    blog_url: https://6sense.com/blog/
+  - name: Drift Blog
+    blog_url: https://www.drift.com/blog/
+  - name: Intercom Blog
+    blog_url: https://www.intercom.com/blog/
+  - name: Zendesk Blog
+    blog_url: https://www.zendesk.com/blog/
+  - name: Braze Blog
+    blog_url: https://www.braze.com/resources/articles
+  - name: Iterable Blog
+    blog_url: https://iterable.com/blog/
+  - name: Optimizely Insights
+    blog_url: https://www.optimizely.com/insights/blog/
+  - name: VWO Blog
+    blog_url: https://vwo.com/blog/
+  - name: Unbounce Blog
+    blog_url: https://unbounce.com/blog/
+  - name: Instapage Blog
+    blog_url: https://instapage.com/blog/
+  - name: Typeform Blog
+    blog_url: https://www.typeform.com/blog/
+  - name: Hotjar Blog
+    blog_url: https://www.hotjar.com/blog/
+  - name: Amplitude Blog
+    blog_url: https://amplitude.com/blog
+  - name: Mixpanel Blog
+    blog_url: https://mixpanel.com/blog/
+  - name: Twilio Segment Blog
+    blog_url: https://segment.com/blog/
+  - name: Zapier Blog
+    blog_url: https://zapier.com/blog/
+  - name: ProductLed
+    blog_url: https://productled.com/blog/
+  - name: Product Marketing Alliance
+    blog_url: https://www.productmarketingalliance.com/
+  - name: GrowthHackers
+    blog_url: https://growthhackers.com/articles
+  - name: SaaStr
+    blog_url: https://www.saastr.com/blog/
+  - name: OpenView Blog
+    blog_url: https://openviewpartners.com/blog/
+  - name: Paddle Blog
+    blog_url: https://www.paddle.com/blog
+  - name: Stripe Blog
+    blog_url: https://stripe.com/blog
+  - name: Webflow Blog
+    blog_url: https://webflow.com/blog
+  - name: Framer Blog
+    blog_url: https://www.framer.com/blog/
+  - name: Product Hunt Blog
+    blog_url: https://www.producthunt.com/stories
+  - name: The Information
+    blog_url: https://www.theinformation.com/

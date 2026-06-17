@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import html
 import re
+import shutil
 from datetime import datetime, timezone
 from email.utils import format_datetime
 from pathlib import Path
@@ -12,6 +13,12 @@ def build_site(output_dir: Path = Path("output"), site_dir: Path = Path("site"))
     site_dir.mkdir(parents=True, exist_ok=True)
     digests_dir = site_dir / "digests"
     digests_dir.mkdir(parents=True, exist_ok=True)
+    assets_source = output_dir / "assets"
+    assets_target = site_dir / "assets"
+    if assets_source.exists():
+        if assets_target.exists():
+            shutil.rmtree(assets_target)
+        shutil.copytree(assets_source, assets_target)
 
     digest_files = sorted(output_dir.glob("*.md"), reverse=True)
     pages: list[tuple[str, str, str]] = []
@@ -22,7 +29,7 @@ def build_site(output_dir: Path = Path("output"), site_dir: Path = Path("site"))
         html_path.write_text(
             _page_html(
                 title=title,
-                body=_markdown_to_html(digest_file.read_text(encoding="utf-8")),
+                body=_markdown_to_html(digest_file.read_text(encoding="utf-8"), asset_prefix="../"),
                 current="digest",
             ),
             encoding="utf-8",
@@ -123,7 +130,7 @@ def _page_html(title: str, body: str, current: str) -> str:
 """
 
 
-def _markdown_to_html(markdown: str) -> str:
+def _markdown_to_html(markdown: str, asset_prefix: str = "") -> str:
     lines = markdown.splitlines()
     result: list[str] = []
     paragraph: list[str] = []
@@ -151,6 +158,18 @@ def _markdown_to_html(markdown: str) -> str:
             flush_paragraph()
             close_list()
             result.append("<hr>")
+            continue
+        image = re.match(r"^!\[([^\]]*)\]\(([^)]+)\)$", line)
+        if image:
+            flush_paragraph()
+            close_list()
+            alt = image.group(1)
+            src = image.group(2)
+            if not src.startswith(("http://", "https://", "/")):
+                src = f"{asset_prefix}{src}"
+            result.append(
+                f'<figure class="hero-image"><img src="{html.escape(src)}" alt="{html.escape(alt)}"></figure>'
+            )
             continue
         heading = re.match(r"^(#{1,3})\s+(.+)$", line)
         if heading:
@@ -360,6 +379,21 @@ main {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--panel);
+}
+
+.hero-image {
+  margin: 30px 0 38px;
+}
+
+.hero-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 620px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #eef1f5;
 }
 
 h1, h2, h3 {
