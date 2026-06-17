@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import logging
 import os
+import shutil
 from datetime import date
 from pathlib import Path
 
@@ -18,6 +19,14 @@ def create_article_image(article: PublicArticle, config: AppConfig, run_date: da
 
     if not config.image_enabled:
         return None
+
+    if config.image_static_path:
+        static_path = config.image_static_path
+        if static_path.exists():
+            target = assets_dir / f"{run_date.isoformat()}-hero{static_path.suffix}"
+            shutil.copyfile(static_path, target)
+            return target
+        LOGGER.warning("Configured static image was not found: %s", static_path)
 
     if os.getenv("OPENAI_API_KEY"):
         try:

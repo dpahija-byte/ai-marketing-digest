@@ -72,6 +72,8 @@ def load_config(path: str | Path = "config.yaml") -> AppConfig:
     voice_file = Path(os.getenv("VOICE_FILE", paths.get("voice_file", "voice.yaml")))
     output_dir = Path(os.getenv("OUTPUT_DIR", paths.get("output_dir", "output")))
     db_path = Path(os.getenv("DB_PATH", paths.get("db_path", "data/digest.sqlite3")))
+    static_image_value = os.getenv("IMAGE_STATIC_PATH", str(image.get("static_path", "") or "")).strip()
+    image_static_path = Path(static_image_value) if static_image_value else None
 
     return AppConfig(
         window_hours=_env_int("WINDOW_HOURS", int(fetch.get("window_hours", 48))),
@@ -106,6 +108,7 @@ def load_config(path: str | Path = "config.yaml") -> AppConfig:
         image_model=os.getenv("IMAGE_MODEL", str(image.get("model", "gpt-image-1"))),
         image_size=os.getenv("IMAGE_SIZE", str(image.get("size", "1536x1024"))),
         image_quality=os.getenv("IMAGE_QUALITY", str(image.get("quality", "medium"))),
+        image_static_path=image_static_path,
         email_enabled=_env_bool("EMAIL_ENABLED", bool(email.get("enabled", False))),
         telegram_enabled=_env_bool("TELEGRAM_ENABLED", bool(telegram.get("enabled", False))),
         editorial_voice=_format_editorial_voice(voice_file),

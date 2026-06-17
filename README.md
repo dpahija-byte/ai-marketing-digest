@@ -12,9 +12,11 @@ Applicazione Python 3.11 che raccoglie ogni giorno contenuti recenti da molte fo
 6. Usa gli articoli come materiale di ricerca, non come link roundup pubblico.
 7. Genera un articolo quotidiano originale: tesi personale, analisi, claim discipline e takeaway pratico.
 8. Tiene le fonti solo in fondo, come bibliografia compatta, cosi' il contenuto principale resta editoriale e proprietario.
-9. Può inviare il risultato via email o Telegram.
-10. Può generare un sito statico pubblico in `site/`, pubblicabile su GitHub Pages.
-11. Usa `voice.yaml` per mantenere una prospettiva editoriale personale e non copiare il framing dei siti fonte.
+9. Esegue controlli prima della pubblicazione: fonti reali, link raccolti nel run, niente URL inventati, niente citazioni lunghe, niente trattini lunghi.
+10. Se un controllo fallisce, salva il pezzo in `output/drafts/` e non lo pubblica sul sito.
+11. Può inviare il risultato via email o Telegram.
+12. Può generare un sito statico pubblico in `site/`, pubblicabile su GitHub Pages.
+13. Usa `voice.yaml` per mantenere una prospettiva editoriale personale e non copiare il framing dei siti fonte.
 
 ## Setup
 
@@ -79,6 +81,7 @@ Variabili ambiente utili:
 - `MAX_NEWSLETTER_ARTICLES=40` per decidere quanti articoli recenti usare come corpus editoriale
 - `VOICE_FILE=voice.yaml`
 - `IMAGE_ENABLED=true`
+- `IMAGE_STATIC_PATH=assets/brand/daniele-pahija-hero.jpeg` per usare un'immagine brand fissa invece di generare immagini AI
 - `IMAGE_MODEL=gpt-image-1`
 - `EMAIL_ENABLED=true`
 - `TELEGRAM_ENABLED=true`
@@ -134,9 +137,17 @@ site/feed.xml
 Ogni file contiene:
 
 - articolo originale quotidiano
-- immagine hero generata da AI se `OPENAI_API_KEY` e `IMAGE_ENABLED=true` sono disponibili
+- immagine hero brand se `IMAGE_STATIC_PATH` e' configurato; altrimenti immagine AI se `OPENAI_API_KEY` e `IMAGE_ENABLED=true` sono disponibili
 - fonti consultate solo alla fine, come crediti/bibliografia
 - breve nota di research basis senza trasformare il sito in una lista di link alle fonti
+
+Se un articolo non supera i controlli prima della pubblicazione, non viene incluso nel sito e viene salvato qui:
+
+```text
+output/drafts/YYYY-MM-DD-draft.md
+```
+
+Su GitHub Actions, una run puo' diventare rossa quando un articolo viene bloccato dai controlli. In quel caso il sito non viene aggiornato con contenuti non verificati; la bozza viene caricata come artifact della run.
 
 ## Delivery opzionale
 

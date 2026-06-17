@@ -72,6 +72,54 @@ def write_public_article(
     return output_path
 
 
+def write_public_draft(
+    article: PublicArticle,
+    config: AppConfig,
+    reasons: list[str] | tuple[str, ...],
+    run_date: date | None = None,
+    stats: dict[str, int] | None = None,
+) -> Path:
+    run_date = run_date or datetime.now(timezone.utc).date()
+    drafts_dir = config.output_dir / "drafts"
+    drafts_dir.mkdir(parents=True, exist_ok=True)
+    output_path = drafts_dir / f"{run_date.isoformat()}-draft.md"
+    stats = stats or {}
+
+    lines = [
+        f"# DRAFT - {article.title}",
+        "",
+        "This article was not published because one or more pre-publication checks failed.",
+        "",
+        "## Failed Checks",
+        "",
+    ]
+    lines.extend(f"- {reason}" for reason in reasons)
+    lines.extend(
+        [
+            "",
+            "## Draft Article",
+            "",
+            f"## {article.title}",
+            "",
+            article.subtitle,
+            "",
+            article.body_markdown.strip(),
+            "",
+            "## Sources Consulted",
+            "",
+            article.sources_markdown.strip(),
+            "",
+            "## Run Stats",
+            "",
+            f"- Sources scanned: {stats.get('sources', article.source_count)}",
+            f"- Recent items reviewed: {stats.get('new', article.article_count)}",
+            "",
+        ]
+    )
+    output_path.write_text("\n".join(lines), encoding="utf-8")
+    return output_path
+
+
 def deliver_output(path: Path, config: AppConfig) -> None:
     body = path.read_text(encoding="utf-8")
     if config.email_enabled:

@@ -54,6 +54,14 @@ jobs:
           EMAIL_ENABLED: "false"
         run: python -m ai_marketing_digest run --build-site
 
+      - name: Upload blocked drafts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: blocked-drafts
+          path: output/drafts/*.md
+          if-no-files-found: ignore
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 

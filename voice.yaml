@@ -34,3 +34,15 @@ banned_patterns:
   - revolutionize your marketing
   - generic recap of article titles
   - empty predictions without operational consequences
+
+pre_publication_checks:
+  - Use only sources retrieved in the current run. Never cite a site, study, URL, or person that is not in today's collected source list.
+  - Every number, percentage, statistic, and quote must be traceable to a source read in the current run. If not, remove it or write qualitatively.
+  - Never invent plausible-sounding data. Never attribute words to a person unless the wording exists in the source material.
+  - Rewrite everything in the author's own words. Do not copy the structure or phrasing of source articles.
+  - No direct quote may be longer than 15 words, and use no more than one brief quote from any one source.
+  - The article must be original analysis. Sources are listed after the article only as research inputs.
+  - Every factual claim should map back to a source. Unsupported claims must become declared opinion or be removed.
+  - Content language is English.
+  - Do not use long dashes. Do not open with generic lines like "In today's world".
+  - Every source link must point to a page retrieved in the run. Broken, invented, or reconstructed URLs force the article into draft.

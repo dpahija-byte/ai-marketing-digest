@@ -8,11 +8,12 @@ from pathlib import Path
 
 from .config import load_config, load_sources
 from .dedup import DedupStore
-from .deliver import deliver_output, write_public_article
+from .deliver import deliver_output, write_public_article, write_public_draft
 from .fetch import Fetcher
 from .generate import LLMClient, TemplateClient, create_llm_client
 from .image import create_article_image
 from .models import AppConfig, Article
+from .quality import validate_public_article
 from .relevance import score_articles
 from .site import build_site
 
@@ -114,15 +115,29 @@ def run(
         if image_path:
             public_article = replace(public_article, image_path=image_path)
 
+        stats = {
+            "sources": len(sources),
+            "fetched": len(fetched),
+            "new": len(research_articles),
+        }
+        quality = validate_public_article(public_article, editorial_articles)
+        if not quality.passed:
+            draft_path = write_public_draft(
+                public_article,
+                config,
+                quality.reasons,
+                run_date=run_date,
+                stats=stats,
+            )
+            logging.error("Article saved as draft because checks failed: %s", "; ".join(quality.reasons))
+            logging.info("Draft written to %s", draft_path)
+            raise RuntimeError("Article failed pre-publication checks")
+
         output_path = write_public_article(
             public_article,
             config,
             run_date=run_date,
-            stats={
-                "sources": len(sources),
-                "fetched": len(fetched),
-                "new": len(research_articles),
-            },
+            stats=stats,
         )
 
         for item in scored[: config.max_newsletter_articles]:

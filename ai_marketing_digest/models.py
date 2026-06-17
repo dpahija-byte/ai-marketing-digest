@@ -41,6 +41,7 @@ class AppConfig:
     image_model: str
     image_size: str
     image_quality: str
+    image_static_path: Path | None
     email_enabled: bool
     telegram_enabled: bool
     editorial_voice: str

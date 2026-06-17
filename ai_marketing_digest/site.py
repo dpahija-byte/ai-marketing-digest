@@ -399,13 +399,12 @@ main {
 .hero-image img {
   display: block;
   width: 100%;
-  aspect-ratio: 16 / 9;
   height: auto;
-  max-height: 520px;
-  object-fit: cover;
+  max-height: 360px;
+  object-fit: contain;
   border-radius: 8px;
   border: 1px solid var(--line);
-  background: #eef1f5;
+  background: #f8f1e9;
 }
 
 h1, h2, h3 {

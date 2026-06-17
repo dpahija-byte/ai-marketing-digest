@@ -26,6 +26,7 @@ llm:
 
 image:
   enabled: true
+  static_path: assets/brand/daniele-pahija-hero.jpeg
   model: gpt-image-1
   size: 1536x1024
   quality: medium

@@ -55,10 +55,12 @@ jobs:
         run: python -m ai_marketing_digest run
 
       - name: Upload digest output
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ai-marketing-digest-output
           path: |
             output/*.md
+            output/drafts/*.md
             data/digest.sqlite3
           if-no-files-found: warn
