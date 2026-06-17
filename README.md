@@ -8,12 +8,13 @@ Applicazione Python 3.11 che raccoglie ogni giorno contenuti recenti da molte fo
 2. Scopre e valida automaticamente feed RSS/Atom dalla pagina blog. Se non trova feed validi, usa scraping HTML con `requests` e `BeautifulSoup`.
 3. Rispetta `robots.txt` prima di scaricare pagine, feed e articoli.
 4. Tiene solo articoli pubblicati nella finestra configurata, di default 48 ore.
-5. Deduplica gli URL già processati in SQLite.
+5. Deduplica gli URL già processati in SQLite, ma usa comunque il corpus recente come contesto editoriale.
 6. Usa gli articoli come materiale di ricerca, non come link roundup pubblico.
 7. Genera un articolo quotidiano originale: tesi personale, analisi, claim discipline e takeaway pratico.
-8. Può inviare il risultato via email o Telegram.
-9. Può generare un sito statico pubblico in `site/`, pubblicabile su GitHub Pages.
-10. Usa `voice.yaml` per mantenere una prospettiva editoriale personale e non copiare il framing dei siti fonte.
+8. Tiene le fonti solo in fondo, come bibliografia compatta, cosi' il contenuto principale resta editoriale e proprietario.
+9. Può inviare il risultato via email o Telegram.
+10. Può generare un sito statico pubblico in `site/`, pubblicabile su GitHub Pages.
+11. Usa `voice.yaml` per mantenere una prospettiva editoriale personale e non copiare il framing dei siti fonte.
 
 ## Setup
 
@@ -134,6 +135,7 @@ Ogni file contiene:
 
 - articolo originale quotidiano
 - immagine hero generata da AI se `OPENAI_API_KEY` e `IMAGE_ENABLED=true` sono disponibili
+- fonti consultate solo alla fine, come crediti/bibliografia
 - breve nota di research basis senza trasformare il sito in una lista di link alle fonti
 
 ## Delivery opzionale

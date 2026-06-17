@@ -194,6 +194,15 @@ def _markdown_to_html(markdown: str, asset_prefix: str = "") -> str:
 
 
 def _inline(text: str) -> str:
+    links: list[str] = []
+
+    def store_link(match: re.Match[str]) -> str:
+        label = html.escape(match.group(1))
+        url = html.escape(match.group(2), quote=True)
+        links.append(f'<a href="{url}" rel="noopener noreferrer">{label}</a>')
+        return f"@@LINK{len(links) - 1}@@"
+
+    text = re.sub(r"\[([^\]]+)\]\((https?://[^)\s]+)\)", store_link, text)
     escaped = html.escape(text)
     escaped = re.sub(
         r"(https?://[^\s<]+)",
@@ -201,6 +210,8 @@ def _inline(text: str) -> str:
         escaped,
     )
     escaped = re.sub(r"`([^`]+)`", r"<code>\1</code>", escaped)
+    for index, link in enumerate(links):
+        escaped = escaped.replace(f"@@LINK{index}@@", link)
     return escaped
 
 
@@ -382,14 +393,15 @@ main {
 }
 
 .hero-image {
-  margin: 30px 0 38px;
+  margin: 28px 0 36px;
 }
 
 .hero-image img {
   display: block;
   width: 100%;
+  aspect-ratio: 16 / 9;
   height: auto;
-  max-height: 620px;
+  max-height: 520px;
   object-fit: cover;
   border-radius: 8px;
   border: 1px solid var(--line);

@@ -205,7 +205,6 @@ class TemplateClient(LLMClient):
     def generate_public_article(self, articles: list[Article], source_count: int) -> PublicArticle:
         title = "The Real AI Marketing Advantage Is Not More Content"
         subtitle = "A daily editorial take on why the next edge belongs to teams that use AI to pressure-test judgment before they publish."
-        source_line = ", ".join(sorted({article.source for article in articles[:8]}))
         body = (
             "Most AI marketing discussions still start in the wrong place: output.\n\n"
             "More posts. More ads. More landing page variants. More emails. More everything.\n\n"
@@ -230,8 +229,7 @@ class TemplateClient(LLMClient):
             "- Which channel would punish this idea fastest?\n\n"
             "That is not glamorous. But it is where the leverage is.\n\n"
             "AI should not become the machine that helps us publish weak thinking faster. "
-            "It should become the pressure system that makes weak thinking harder to ship.\n\n"
-            f"Research basis: {len(articles)} recent items reviewed across {source_count} sources, including {source_line}."
+            "It should become the pressure system that makes weak thinking harder to ship."
         )
         image_prompt = (
             "Editorial hero image for an AI marketing strategy article. A modern strategy desk with layered research notes, "
@@ -242,6 +240,7 @@ class TemplateClient(LLMClient):
             title=title,
             subtitle=subtitle,
             body_markdown=body,
+            sources_markdown=_default_sources_note(articles),
             image_prompt=image_prompt,
             source_count=source_count,
             article_count=len(articles),
@@ -370,20 +369,22 @@ def _public_article_system_prompt(config: AppConfig) -> str:
         '- "title": strong article title, not clickbait.\n'
         '- "subtitle": one-sentence promise for the reader.\n'
         '- "body_markdown": the full article in Markdown.\n'
+        '- "sources_markdown": a compact Markdown source note with 5-10 selected source links.\n'
         '- "image_prompt": prompt for an AI-generated editorial hero image.\n\n'
         "Article requirements:\n"
         "- English only.\n"
         "- 900-1400 words if there is enough material.\n"
         "- One clear thesis, not a roundup.\n"
-        "- Personal, analytical, useful, and specific.\n"
+        "- Personal, analytical, useful, and specific. It must read like the author's own article.\n"
         "- Do not imitate the wording or structure of source sites.\n"
-        "- Do not send readers away with a list of external links.\n"
-        "- Do not mention every source. Use them as research inputs.\n"
+        "- Do not send readers away with source-led paragraphs or a list of external links.\n"
+        "- Do not mention source names, URLs, or authors inside body_markdown unless absolutely necessary for accuracy.\n"
+        "- Keep all source credits in sources_markdown, after the article.\n"
         "- Make your reasoning visible: what seems solid, what is inferred, what may be overhyped.\n"
         "- Give the reader a practical decision rule, framework, or operational takeaway.\n"
         "- Avoid generic LinkedIn language and motivational fluff.\n"
         "- Do not invent facts beyond the source excerpts.\n"
-        "- Do not include raw URLs in the public article body.\n"
+        "- Do not include raw URLs in body_markdown. In sources_markdown, use Markdown links.\n"
         "- The hero image prompt must request no text, no logos, no UI screenshots, no robots, and no brand names.\n"
         f"{_voice_block(config)}"
     )
@@ -397,6 +398,7 @@ def _public_article_prompt(articles: list[Article], source_count: int) -> str:
                 "id": index,
                 "source": article.source,
                 "title": article.title,
+                "url": article.url,
                 "author": article.author,
                 "published_at": article.published_at.isoformat() if article.published_at else None,
                 "excerpt": (article.excerpt or article.text[:900])[:1200],
@@ -406,7 +408,9 @@ def _public_article_prompt(articles: list[Article], source_count: int) -> str:
         f"You reviewed {len(articles)} recent articles from {source_count} sources. "
         "Use the following research material to create one original daily article. "
         "The public article should feel like it belongs to the author's publication, not to the source sites. "
-        "Do not output source links. Do not output a listicle of sources. Create one strong angle.\n\n"
+        "Do not output a listicle of sources. Create one strong angle. "
+        "Prioritize the newest material, but treat repeated patterns across sources as stronger evidence than one isolated article. "
+        "Use source URLs only in sources_markdown at the end, never inside body_markdown.\n\n"
         + json.dumps(rows, ensure_ascii=False)
     )
 
@@ -422,9 +426,12 @@ def _public_article_from_json(content: str, articles: list[Article], source_coun
     title = str(payload.get("title") or "AI Marketing Daily")
     subtitle = str(payload.get("subtitle") or "A daily analysis of the most useful signals in AI and marketing.")
     body = str(payload.get("body_markdown") or "").strip()
+    sources_markdown = str(payload.get("sources_markdown") or "").strip()
     image_prompt = str(payload.get("image_prompt") or "").strip()
     if not body:
         raise RuntimeError("Generated public article body is empty")
+    if not sources_markdown or "http" not in sources_markdown:
+        sources_markdown = _default_sources_note(articles)
     if not image_prompt:
         image_prompt = (
             "Editorial hero image for a thoughtful AI marketing strategy article. Sophisticated, realistic, "
@@ -434,10 +441,33 @@ def _public_article_from_json(content: str, articles: list[Article], source_coun
         title=title,
         subtitle=subtitle,
         body_markdown=body,
+        sources_markdown=sources_markdown,
         image_prompt=image_prompt,
         source_count=source_count,
         article_count=len(articles),
     )
+
+
+def _default_sources_note(articles: list[Article]) -> str:
+    if not articles:
+        return "- No recent source links were available for this run."
+
+    lines: list[str] = []
+    seen: set[str] = set()
+    for article in articles:
+        if article.url in seen:
+            continue
+        seen.add(article.url)
+        author = f", {article.author}" if article.author else ""
+        label = _escape_markdown(f"{article.source}{author}: {article.title}")
+        lines.append(f"- [{label}]({article.url})")
+        if len(lines) >= 10:
+            break
+    return "\n".join(lines)
+
+
+def _escape_markdown(text: str) -> str:
+    return text.replace("[", "\\[").replace("]", "\\]")
 
 
 def _voice_block(config: AppConfig) -> str:

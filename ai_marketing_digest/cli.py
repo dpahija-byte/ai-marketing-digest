@@ -92,7 +92,7 @@ def run(
         duplicate_count = len(fetched) - len(new_articles)
         logging.info("Fetched=%d, new=%d, already_processed=%d", len(fetched), len(new_articles), duplicate_count)
 
-        research_articles = new_articles or fetched
+        research_articles = fetched if include_seen else _dedupe_in_memory(new_articles + fetched)
         scored = score_articles(research_articles)
         editorial_articles = [item.article for item in scored[: config.max_newsletter_articles]]
 

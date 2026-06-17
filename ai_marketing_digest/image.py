@@ -53,32 +53,47 @@ def _create_openai_image(article: PublicArticle, config: AppConfig, image_path: 
     return image_path
 
 
-def _create_placeholder_svg(article: PublicArticle, image_path: Path) -> Path:
-    title = _escape_xml(article.title[:90])
-    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1536 1024" role="img">
+def _create_placeholder_svg(_article: PublicArticle, image_path: Path) -> Path:
+    svg = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1536 864" role="img" aria-label="Abstract editorial image about AI marketing strategy">
   <defs>
     <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0" stop-color="#f7f8fa"/>
-      <stop offset="1" stop-color="#d7ede8"/>
+      <stop offset="0" stop-color="#f8f6f0"/>
+      <stop offset="0.52" stop-color="#eef4f2"/>
+      <stop offset="1" stop-color="#e8edf7"/>
+    </linearGradient>
+    <linearGradient id="plane" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.94"/>
+      <stop offset="1" stop-color="#f5f7f9" stop-opacity="0.84"/>
     </linearGradient>
   </defs>
-  <rect width="1536" height="1024" fill="url(#bg)"/>
-  <circle cx="1180" cy="220" r="180" fill="#0f766e" opacity="0.10"/>
-  <circle cx="320" cy="780" r="240" fill="#155e75" opacity="0.10"/>
-  <rect x="220" y="240" width="1096" height="544" rx="28" fill="#ffffff" opacity="0.82"/>
-  <path d="M320 650 C520 420 710 740 930 470 S1160 410 1210 560" fill="none" stroke="#0f766e" stroke-width="18" stroke-linecap="round"/>
-  <path d="M360 520 H690 M360 575 H820 M360 710 H1050" stroke="#172033" stroke-width="16" stroke-linecap="round" opacity="0.18"/>
-  <text x="300" y="370" fill="#172033" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="700">{title}</text>
+  <rect width="1536" height="864" fill="url(#bg)"/>
+  <path d="M0 676 L420 520 L780 618 L1536 360 L1536 864 L0 864 Z" fill="#0f766e" opacity="0.08"/>
+  <path d="M0 168 L420 58 L900 150 L1536 48 L1536 0 L0 0 Z" fill="#273449" opacity="0.06"/>
+  <g transform="translate(214 138)">
+    <rect x="0" y="88" width="1108" height="540" rx="34" fill="url(#plane)" stroke="#d7dde5" stroke-width="2"/>
+    <rect x="92" y="166" width="360" height="216" rx="18" fill="#ffffff" stroke="#dce2e8" stroke-width="2"/>
+    <rect x="516" y="166" width="500" height="216" rx="18" fill="#ffffff" stroke="#dce2e8" stroke-width="2"/>
+    <rect x="92" y="438" width="924" height="98" rx="18" fill="#ffffff" stroke="#dce2e8" stroke-width="2"/>
+    <path d="M164 324 C254 210 372 352 482 270 C606 178 700 344 812 240 C888 170 946 194 986 246" fill="none" stroke="#0f766e" stroke-width="16" stroke-linecap="round"/>
+    <path d="M592 474 H730 M766 474 H902 M158 474 H394" stroke="#273449" stroke-width="14" stroke-linecap="round" opacity="0.15"/>
+    <path d="M158 512 H514 M552 512 H808 M846 512 H956" stroke="#273449" stroke-width="14" stroke-linecap="round" opacity="0.10"/>
+    <g fill="#d97706" opacity="0.68">
+      <rect x="170" y="208" width="42" height="42" rx="10"/>
+      <rect x="224" y="208" width="42" height="42" rx="10"/>
+      <rect x="278" y="208" width="42" height="42" rx="10"/>
+    </g>
+    <g stroke="#273449" stroke-width="10" stroke-linecap="round" opacity="0.24">
+      <path d="M620 228 H934"/>
+      <path d="M620 272 H874"/>
+      <path d="M620 316 H962"/>
+    </g>
+    <g fill="#0f766e" opacity="0.16">
+      <rect x="90" y="54" width="168" height="54" rx="16"/>
+      <rect x="840" y="44" width="214" height="64" rx="18"/>
+    </g>
+  </g>
+  <path d="M1172 636 L1264 690 L1350 606" fill="none" stroke="#d97706" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" opacity="0.76"/>
 </svg>
 """
     image_path.write_text(svg, encoding="utf-8")
     return image_path
-
-
-def _escape_xml(value: str) -> str:
-    return (
-        value.replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
-        .replace('"', "&quot;")
-    )

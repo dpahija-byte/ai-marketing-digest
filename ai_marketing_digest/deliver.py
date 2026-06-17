@@ -42,11 +42,28 @@ def write_public_article(
             "",
             "---",
             "",
+        ]
+    )
+
+    if article.sources_markdown.strip():
+        lines.extend(
+            [
+                "## Sources Consulted",
+                "",
+                article.sources_markdown.strip(),
+                "",
+                "---",
+                "",
+            ]
+        )
+
+    lines.extend(
+        [
             "## Research Basis",
             "",
             f"- Sources scanned: {stats.get('sources', article.source_count)}",
             f"- Recent items reviewed: {stats.get('new', article.article_count)}",
-            "- The article above is original analysis. Source material is used as research input, not republished as a link roundup.",
+            "- The article above is original analysis. Sources are used as research input and credited only after the article.",
             "",
         ]
     )

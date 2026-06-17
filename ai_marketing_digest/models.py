@@ -69,6 +69,7 @@ class PublicArticle:
     title: str
     subtitle: str
     body_markdown: str
+    sources_markdown: str
     image_prompt: str
     source_count: int
     article_count: int
